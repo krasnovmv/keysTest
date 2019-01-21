@@ -3,7 +3,7 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
@@ -26,3 +26,17 @@ export default new Router({
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  const publicPages = ['/auth']
+  const authRequired = !publicPages.includes(to.path)
+  const loggedIn = localStorage.getItem('keys_token')
+
+  if (authRequired && !loggedIn) {
+    return next('/auth')
+  }
+
+  next()
+})
+
+export default router
