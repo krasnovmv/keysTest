@@ -108,7 +108,15 @@ export default {
       }
     },
     registration () {
-      console.log('dispatch auth/register need here')
+      this.$store.dispatch('auth/registration', {
+        username: this.form.username,
+        password: this.form.password,
+        email: this.form.email
+      }).then(() => {
+        localStorage.setItem('keys_token', this.$store.state.auth.jwt)
+        Vue.axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('keys_token')
+        this.$router.push({ name: 'chat' })
+      })
     },
     login () {
       this.$store.dispatch('auth/login', { username: this.form.username, password: this.form.password }).then(() => {

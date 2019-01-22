@@ -5,6 +5,7 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework_jwt.serializers import jwt_payload_handler, jwt_encode_handler
 
 from keys.chat.models import Chat, Message
 from keys.chat.serializer import UserSerializer, MessageSerializer
@@ -35,6 +36,27 @@ class UserViewSet(viewsets.ModelViewSet):
         return queryset
 
 
+class UserRegistration(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        serializer = UserSerializer(data=data)
+        if serializer.is_valid():
+            user = User.objects.create(**serializer.validated_data)
+            user.set_password(data['password'])
+            user.save()
+            payload = jwt_payload_handler(user)
+            token = {'token': jwt_encode_handler(payload)}
+            return Response(token, status=status.HTTP_201_CREATED)
+        print(serializer.errors)
+        print(serializer.data)
+        return Response({
+            'status': 'Неправильный запрос',
+            'message': 'Учетная запись не может быть создана с полученными данными'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
 class ChatViewSet(viewsets.ModelViewSet):
     authentication_classes = (JSONWebTokenAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -55,17 +77,14 @@ class ChatViewSet(viewsets.ModelViewSet):
         data['sender'] = user
         data['date'] = timezone.now()
         data['chat'] = chat
-        serializer = MessageSerializer(data=request.data)
+        serializer = MessageSerializer(data=data)
         if serializer.is_valid():
             new_message = Message.objects.create(**serializer.validated_data)
             new_message.sender_id = data['sender']
             new_message.chat_id = data['chat']
             new_message.save()
             data = MessageSerializer(new_message)
-            print(data.data)
             return Response(data.data, status=status.HTTP_201_CREATED)
-        print(serializer.errors)
-        print(serializer.data)
         return Response({
             'status': 'Неправильный запрос',
             'message': 'Сообщение не может быть создано с полученными данными'

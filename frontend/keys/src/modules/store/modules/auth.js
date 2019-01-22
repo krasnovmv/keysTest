@@ -7,21 +7,28 @@ const module = {
   },
   getters: {},
   mutations: {
-    registration (state) {
+    registration (state, payload) {
+      state.jwt = payload.token
     },
     login (state, payload) {
       state.jwt = payload.token
-      return payload
     }
   },
   actions: {
-    registration (state) {
+    registration ({ state, commit }, payload) {
+      return Vue.axios.post('/auth/registration/', {
+        username: payload.username,
+        password: payload.password,
+        email: payload.email
+      }).then(response => {
+        return commit('registration', response.data)
+      })
     },
     login ({ state, commit }, payload) {
       return Vue.axios.post('/auth/obtain_token/', {
         username: payload.username,
         password: payload.password
-      }).then((response) => {
+      }).then(response => {
         return commit('login', response.data)
       })
     }
