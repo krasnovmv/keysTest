@@ -1,19 +1,13 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from keys.chat.models import Chat, Message
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('url', 'username', 'email', 'groups')
-
-
-class GroupSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Group
-        fields = ('url', 'name')
+        fields = ('id', 'username', 'email')
 
 
 class ChatSerializer(serializers.HyperlinkedModelSerializer):
@@ -22,7 +16,8 @@ class ChatSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'users')
 
 
-class MessageSerializer(serializers.HyperlinkedModelSerializer):
+class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = ('id', 'sender', 'message', 'date')
+        depth = 2

@@ -113,7 +113,7 @@ export default {
     login () {
       this.$store.dispatch('auth/login', { username: this.form.username, password: this.form.password }).then(() => {
         localStorage.setItem('keys_token', this.$store.state.auth.jwt)
-        Vue.axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('keys_token');
+        Vue.axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('keys_token')
         this.$router.push({ name: 'chat' })
       })
     }

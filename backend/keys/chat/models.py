@@ -9,14 +9,19 @@ class Chat(models.Model):
     def publish(self):
         self.save()
 
+    def save(self, **kwargs):
+        super(Chat, self).save(**kwargs)
+        message = Message(chat=self)
+        message.save()
+
     def __str__(self):
         return 'Чат #{}'.format(self.id)
 
 
 class Message(models.Model):
     id = models.AutoField(primary_key=True)
-    chat = models.ForeignKey(Chat)
-    sender = models.ForeignKey('auth.User')
+    chat = models.ForeignKey('chat.Chat', null=True)
+    sender = models.ForeignKey('auth.User', null=True)
     message = models.TextField()
     date = models.DateTimeField(default=timezone.now)
 

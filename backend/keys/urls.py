@@ -6,8 +6,7 @@ from keys.chat import views
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
-router.register(r'chats', views.ChatViewSet)
-router.register(r'messages', views.MessageViewSet)
+router.register(r'chat/(?P<chat_user>\d{0,10})', views.ChatViewSet, base_name='chat')
 
 urlpatterns = [
     url('', include(router.urls)),
