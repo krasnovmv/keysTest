@@ -51,6 +51,8 @@
 </template>
 
 <script>
+import Vue from 'vue'
+
 function validateEmail (email) {
   let emailRegexp = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/
   return emailRegexp.test(email)
@@ -111,6 +113,7 @@ export default {
     login () {
       this.$store.dispatch('auth/login', { username: this.form.username, password: this.form.password }).then(() => {
         localStorage.setItem('keys_token', this.$store.state.auth.jwt)
+        Vue.axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('keys_token');
         this.$router.push({ name: 'chat' })
       })
     }
