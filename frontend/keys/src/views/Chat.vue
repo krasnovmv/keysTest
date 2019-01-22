@@ -20,13 +20,13 @@
             v-for="message in chat"
             :key="message.id">
             <v-list-tile-content>
-              <v-list-tile-sub-title v-html="message.sender.username"></v-list-tile-sub-title>
+              <v-list-tile-sub-title>{{message.sender.username}} {{message.date|formatDate}}</v-list-tile-sub-title>
               <v-list-tile-title v-html="message.message"></v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
         </v-list>
         <v-text-field v-model="messageText" name="message"></v-text-field>
-        <v-btn @click="sendMessage">Отправить</v-btn>
+        <v-btn @click="sendMessage" :disabled="this.messageText===''">Отправить</v-btn>
         <v-btn @click="getChat(currentUser)">Обновить</v-btn>
       </v-flex>
     </v-layout>
@@ -62,7 +62,9 @@ export default {
       })
     },
     sendMessage () {
-      this.$store.dispatch('chat/sendMessage', { user: this.currentUser, message: this.messageText })
+      this.$store.dispatch('chat/sendMessage', { user: this.currentUser, message: this.messageText }).then(() => {
+        this.messageText = ''
+      })
     }
   }
 }
