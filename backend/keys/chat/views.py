@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -12,7 +11,9 @@ from keys.chat.serializer import UserSerializer, MessageSerializer
 
 
 def get_chat_by_users(users):
-    chat = Chat.objects.filter(users__in=users).distinct()
+    chat = Chat.objects.distinct()
+    for user in users:
+        chat = chat.filter(users=user)
     if chat.count():
         chat_id = chat[0].id
     else:
@@ -49,8 +50,6 @@ class UserRegistration(viewsets.ModelViewSet):
             payload = jwt_payload_handler(user)
             token = {'token': jwt_encode_handler(payload)}
             return Response(token, status=status.HTTP_201_CREATED)
-        print(serializer.errors)
-        print(serializer.data)
         return Response({
             'status': 'Неправильный запрос',
             'message': 'Учетная запись не может быть создана с полученными данными'
@@ -75,7 +74,6 @@ class ChatViewSet(viewsets.ModelViewSet):
         chat = get_chat_by_users([user, chat_user])
         data = request.data
         data['sender'] = user
-        data['date'] = timezone.now()
         data['chat'] = chat
         serializer = MessageSerializer(data=data)
         if serializer.is_valid():

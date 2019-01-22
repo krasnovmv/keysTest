@@ -9,11 +9,6 @@ class Chat(models.Model):
     def publish(self):
         self.save()
 
-    def save(self, **kwargs):
-        super(Chat, self).save(**kwargs)
-        message = Message(chat=self)
-        message.save()
-
     def __str__(self):
         return 'Чат #{}'.format(self.id)
 
